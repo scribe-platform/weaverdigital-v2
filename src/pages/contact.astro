@@ -2,14 +2,69 @@
 import Base from '../layouts/Base.astro';
 import ContactForm from '../components/ContactForm.astro';
 import { CONTACT_COLLECTION, CONTACT_FIELDS, SITE_SLUG, TURNSTILE_SITE_KEY } from '../site-config';
+
+const needs = ['Website', 'Google & local search', 'Reviews', 'Social media', 'Design & content', 'Not sure yet'];
 ---
-<Base title="Contact">
-  <h1>Tell us about your lawn</h1>
-  <p>Fill out the form below and we'll follow up to schedule your free quote. No commitment required.</p>
-  <ContactForm
-    site={SITE_SLUG}
-    collection={CONTACT_COLLECTION}
-    turnstileSiteKey={TURNSTILE_SITE_KEY}
-    fields={CONTACT_FIELDS.length > 0 ? CONTACT_FIELDS : undefined}
-  />
+<Base title="Contact" description="Get in touch with Weaver Digital about getting your business found online." footerCta={false}>
+  <section class="page-top">
+    <div class="wrap contact-grid">
+      <div>
+        <span class="label reveal">Contact</span>
+        <h1 class="display misprint reveal" data-delay="1">Let's<br />talk.</h1>
+        <p class="sub reveal" data-delay="2">No pressure. I'll reply within a day or two.</p>
+        <a class="mail reveal" data-delay="3" href="mailto:ashley@weaverdigital.io">ashley@weaverdigital.io <span>→</span></a>
+      </div>
+      <div class="form-card card reveal" data-delay="1">
+        <p class="need-label">What do you need?</p>
+        <div class="needs" role="group" aria-label="What do you need?">
+          {needs.map((n) => <button type="button" class="need" aria-pressed="false">{n}</button>)}
+        </div>
+        <ContactForm
+          site={SITE_SLUG}
+          collection={CONTACT_COLLECTION}
+          turnstileSiteKey={TURNSTILE_SITE_KEY}
+          fields={CONTACT_FIELDS.length > 0 ? CONTACT_FIELDS : undefined}
+        />
+      </div>
+    </div>
+  </section>
+
+  <style>
+    .page-top { padding: 72px 0 104px; }
+    .contact-grid { display: grid; grid-template-columns: 1fr 1.1fr; gap: 56px; align-items: start; }
+    .sub { font-size: 1.25rem; font-weight: 500; margin: 22px 0 30px; }
+    .mail {
+      display: inline-flex; gap: 10px; align-items: center; font-weight: 800; font-size: 1.2rem; text-decoration: none;
+      padding: 12px 20px; border: var(--line); border-radius: 999px; background: var(--lilac); box-shadow: var(--pop-sm);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .mail:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--ink); }
+    .form-card { padding: 32px; transform: rotate(0.6deg); }
+    .form-card.in { transform: rotate(0.6deg); }
+    .need-label { font-weight: 800; margin-bottom: 12px; }
+    .needs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+    .need {
+      cursor: pointer; padding: 9px 15px; border: 2.5px solid var(--ink); border-radius: 999px;
+      background: var(--paper); font-weight: 700; font-size: 0.9rem; transition: background 0.2s, transform 0.2s var(--ease);
+    }
+    .need:hover { transform: rotate(-3deg); }
+    .need[aria-pressed='true'] { background: var(--lime); box-shadow: 3px 3px 0 var(--ink); }
+    @media (max-width: 900px) { .contact-grid { grid-template-columns: 1fr; gap: 40px; } .page-top { padding: 48px 0 72px; } }
+    @media (max-width: 480px) { .form-card { padding: 22px 18px; transform: none; } .form-card.in { transform: none; } }
+  </style>
+
+  <script>
+    const chips = Array.from(document.querySelectorAll<HTMLButtonElement>('.need'));
+    const message = document.querySelector<HTMLTextAreaElement>('#scribe-contact-form textarea[name="message"]');
+    const PREFIX = 'Interested in: ';
+    chips.forEach((chip) => {
+      chip.addEventListener('click', () => {
+        chip.setAttribute('aria-pressed', String(chip.getAttribute('aria-pressed') !== 'true'));
+        if (!message) return;
+        const picked = chips.filter((c) => c.getAttribute('aria-pressed') === 'true').map((c) => c.textContent);
+        const rest = message.value.startsWith(PREFIX) ? message.value.split('\n').slice(1).join('\n').replace(/^\n/, '') : message.value;
+        message.value = picked.length ? `${PREFIX}${picked.join(', ')}\n\n${rest}` : rest;
+      });
+    });
+  </script>
 </Base>

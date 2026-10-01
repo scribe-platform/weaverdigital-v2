@@ -1,94 +1,382 @@
 ---
 import Base from '../layouts/Base.astro';
 import { url } from '../lib/base';
-import { getCollection, type CollectionEntry } from 'astro:content';
-import {
-  CATALOG_ACTIVE_FIELD,
-  CATALOG_COLLECTION,
-  CATALOG_LABEL,
-  CATALOG_PRICE_FIELD,
-  CATALOG_SORT_FIELD,
-  CATALOG_TITLE_FIELD,
-  SITE_NAME,
-} from '../site-config';
-import { formatPrice } from '../lib/catalog';
+import { groups, icons } from '../lib/services';
 
-let featured: CollectionEntry<any>[] = [];
-if (CATALOG_COLLECTION) {
-  const entries = (await getCollection(CATALOG_COLLECTION as any)) as CollectionEntry<any>[];
-  const visible = CATALOG_ACTIVE_FIELD ? entries.filter((e) => e.data[CATALOG_ACTIVE_FIELD] !== false) : entries;
-  const sorted = CATALOG_SORT_FIELD
-    ? [...visible].sort((a, b) => (a.data[CATALOG_SORT_FIELD] < b.data[CATALOG_SORT_FIELD] ? -1 : 1))
-    : visible;
-  featured = sorted.slice(0, 3);
-}
+const svg = (name: string) =>
+  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${icons[name]}</svg>`;
+
+const stickers = [
+  { text: '★ 5.0', cls: 's1' },
+  { text: '📍 Near me', cls: 's2' },
+  { text: 'Open now', cls: 's3' },
+  { text: 'Website ✓', cls: 's4' },
+  { text: 'New review!', cls: 's5' },
+];
+const problems = [
+  ['google', 'Nobody finds me on Google'],
+  ['websites', "I don't have a website"],
+  ['reviews', 'I need more reviews'],
+  ['social', 'My social media is quiet'],
+  ['design', 'I need flyers & graphics'],
+  ['reports', 'Is any of this working?'],
+];
+const checklist = ['Website', 'Hours & info', 'Photos', 'Reviews', 'Google posts'];
+const steps = [
+  ['Talk', 'A quick call about your business.'],
+  ['Preview', 'See your site before you decide.'],
+  ['Launch', 'Site live, Google listing fixed.'],
+  ['Grow', 'I keep it all running.'],
+];
+const cardColors = ['lime', 'lilac', 'pink', 'white', 'lime', 'lilac'];
 ---
-<Base title="Home" description={`${SITE_NAME} — managed with Scribe.`}>
+<Base title="Home" description="Websites, Google listings, reviews, social media and design for small local businesses.">
+  <!-- HERO -->
   <section class="hero">
-    <span class="eyebrow">Locally owned &amp; operated</span>
-    <h1>A lawn you'll actually be proud of.</h1>
-    <p class="hero-sub">
-      {SITE_NAME} keeps yards mowed, fed, and looking sharp — so you don't have to think about it.
-    </p>
-    <div class="hero-actions">
-      <a class="btn btn-primary" href={url('/contact')}>Get a Free Quote</a>
-      {CATALOG_COLLECTION && (
-        <a class="btn btn-secondary" href={url(`/${CATALOG_COLLECTION}`)}>Browse {CATALOG_LABEL}</a>
-      )}
-    </div>
-  </section>
-
-  <section class="why-us">
-    <h2>Why homeowners choose us</h2>
-    <div class="card-grid">
-      <div class="card">
-        <h3>🚜 Reliable weekly service</h3>
-        <p>Same crew, same schedule, every week — no surprises.</p>
+    <div class="wrap hero-grid">
+      <div class="hero-copy">
+        <span class="label reveal">For small local businesses</span>
+        <h1 class="display misprint reveal" data-delay="1" id="hero-title">Get found<br />online.</h1>
+        <p class="hero-sub reveal" data-delay="2">Websites, Google, reviews, social and design. Done for you.</p>
+        <div class="actions reveal" data-delay="3">
+          <a class="btn btn-lime" href={url('/contact')}>Let's talk <span class="arrow">→</span></a>
+          <a class="btn btn-paper" href={url('/services')}>See services</a>
+        </div>
       </div>
-      <div class="card">
-        <h3>🌱 Healthy, green results</h3>
-        <p>Fertilization and weed control tailored to your lawn's needs.</p>
-      </div>
-      <div class="card">
-        <h3>💧 Full-service options</h3>
-        <p>From a simple mow to complete seasonal lawn care, we scale with you.</p>
+      <div class="sticker-zone" id="sticker-zone" aria-hidden="true">
+        <div class="phone">
+          <div class="phone-bar"><span>🔍</span> best bakery near me</div>
+          <div class="phone-result">
+            <img src={url('/brand/icon.png')} alt="" width="46" height="46" />
+            <div><strong>Your Business</strong><small>★★★★★ · Open now</small></div>
+          </div>
+          <div class="phone-ghost"></div>
+          <div class="phone-ghost"></div>
+        </div>
+        {stickers.map((s) => <span class={`sticker ${s.cls}`}>{s.text}</span>)}
+        <p class="drag-hint">psst: drag the stickers</p>
       </div>
     </div>
   </section>
 
-  {featured.length > 0 && (
-    <section class="teaser">
-      <h2>Popular {CATALOG_LABEL}</h2>
-      <div class="card-grid">
-        {featured.map((entry) => (
-          <a class="card" href={url(`/${CATALOG_COLLECTION}/${entry.id}`)}>
-            <h3>{entry.data[CATALOG_TITLE_FIELD] ?? entry.id}</h3>
-            {CATALOG_PRICE_FIELD && entry.data[CATALOG_PRICE_FIELD] != null && (
-              <p class="price">{formatPrice(entry.data[CATALOG_PRICE_FIELD])} <small>/ month</small></p>
-            )}
+  <!-- PROBLEM PICKER -->
+  <section class="section on-lilac">
+    <div class="wrap picker">
+      <div>
+        <h2 class="display reveal">What's the<br />problem?</h2>
+        <p class="picker-sub reveal" data-delay="1">Pick one. I'll show you the fix.</p>
+        <div class="problems reveal" data-delay="2" role="tablist" aria-label="Problems">
+          {problems.map(([id, text], i) => (
+            <button role="tab" id={`prob-${id}`} aria-controls={`fix-${id}`} aria-selected={i === 0 ? 'true' : 'false'} tabindex={i === 0 ? 0 : -1}>{text}</button>
+          ))}
+        </div>
+      </div>
+      <div class="fixes reveal" data-delay="1">
+        {problems.map(([id], i) => {
+          const g = groups.find((x) => x.id === id)!;
+          return (
+            <div class="fix card" role="tabpanel" id={`fix-${id}`} aria-labelledby={`prob-${id}`} hidden={i !== 0}>
+              <div class="fix-ico" set:html={svg(g.icon)} />
+              <p class="fix-kicker">The fix</p>
+              <h3>{g.title}{g.thin}</h3>
+              <p class="muted">{g.line}</p>
+              <ul>{g.items.map((it) => <li>{it.title}</li>)}</ul>
+              <a class="btn btn-ink" href={url(`/services#${g.id}`)}>See how <span class="arrow">→</span></a>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  </section>
+
+  <!-- BEFORE / AFTER -->
+  <section class="section">
+    <div class="wrap ba-grid">
+      <div>
+        <h2 class="display misprint reveal">Before.<br />After.</h2>
+        <p class="ba-sub muted reveal" data-delay="1">Drag the handle to see what changes.</p>
+      </div>
+      <div class="ba reveal" data-delay="1" id="ba">
+        <div class="listing before">
+          <div class="l-head"><span class="l-pin"></span><div><strong>Your Business</strong><small>Unclaimed listing</small></div></div>
+          <ul>{checklist.map((c) => <li><span>{c}</span><em class="miss">Missing</em></li>)}</ul>
+          <div class="l-meter"><i style="width:12%"></i></div>
+        </div>
+        <div class="listing after" id="ba-after">
+          <div class="l-head"><img src={url('/brand/icon.png')} alt="" width="48" height="48" /><div><strong>Your Business</strong><small>★★★★★ · Open now</small></div></div>
+          <ul>{checklist.map((c) => <li><span>{c}</span><em class="ok">✓</em></li>)}</ul>
+          <div class="l-meter"><i style="width:94%"></i></div>
+        </div>
+        <div class="ba-handle" id="ba-handle"><span>⇆</span></div>
+        <input type="range" min="0" max="100" value="50" id="ba-range" aria-label="Compare before and after" />
+        <span class="ba-tag t-before">Before</span><span class="ba-tag t-after">After</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="section on-ink">
+    <div class="wrap">
+      <div class="head reveal">
+        <h2 class="display misprint">Four steps.</h2>
+        <p class="muted">You run your business. I handle the rest.</p>
+      </div>
+      <div class="steps">
+        {steps.map(([title, line], i) => (
+          <div class={`step card reveal tilt-${i % 2 ? 'r' : 'l'}`} data-delay={String(i)}>
+            <span class="step-num">0{i + 1}</span>
+            <h3>{title}</h3>
+            <p class="muted">{line}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- EVERYTHING -->
+  <section class="section">
+    <div class="wrap">
+      <div class="head reveal">
+        <h2 class="display misprint">Everything<br />I do.</h2>
+        <a class="btn btn-paper" href={url('/services')}>All services <span class="arrow">→</span></a>
+      </div>
+      <div class="all-grid">
+        {groups.map((g, i) => (
+          <a class={`all-card card reveal bg-${cardColors[i]}`} data-delay={String(i % 3)} data-tilt="8" href={url(`/services#${g.id}`)}>
+            <div class="ico lift" set:html={svg(g.icon)} />
+            <h3>{g.title}{g.thin}</h3>
+            <p>{g.line}</p>
+            <span class="go" aria-hidden="true">→</span>
           </a>
         ))}
       </div>
-    </section>
-  )}
-
-  <p class="managed-note">This site is managed with Scribe. Read the <a href={url('/blog')}>blog</a> or <a href={url('/contact')}>get in touch</a>.</p>
+    </div>
+  </section>
 
   <style>
-    .hero { text-align: center; padding: 32px 0 48px; }
-    .eyebrow { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.8rem; font-weight: 700; color: var(--green-700); }
-    .hero h1 { font-size: 2.4rem; margin: 12px 0; color: var(--green-900); }
-    .hero-sub { max-width: 520px; margin: 0 auto 24px; color: var(--ink-soft); }
-    .hero-actions { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
-    .btn { display: inline-block; padding: 12px 24px; border-radius: 999px; font-weight: 700; text-decoration: none; }
-    .btn-primary { background: var(--green-700); color: white; }
-    .btn-secondary { background: white; color: var(--green-700); border: 1px solid var(--green-700); }
-    section.why-us, section.teaser { margin: 48px 0; }
-    section h2 { text-align: center; margin-bottom: 24px; }
-    .card-grid { display: grid; gap: 20px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
-    .card { display: block; border: 1px solid var(--border); border-radius: 12px; padding: 20px; background: white; color: var(--ink); text-decoration: none; }
-    .card h3 { margin-top: 0; }
-    .price { font-weight: 700; color: var(--green-700); }
-    .managed-note { text-align: center; color: var(--ink-soft); font-size: 0.9rem; margin-top: 48px; }
+    /* Hero */
+    .hero { padding: 72px 0 96px; overflow: hidden; }
+    .hero-grid { display: grid; grid-template-columns: 1.15fr 1fr; gap: 32px; align-items: center; }
+    .hero-sub { font-size: 1.3rem; font-weight: 500; margin: 26px 0 34px; max-width: 460px; }
+    #hero-title { transition: text-shadow 0.12s linear; }
+
+    .sticker-zone { position: relative; height: 480px; touch-action: none; }
+    .phone {
+      position: absolute; left: 50%; top: 50%; width: 270px; transform: translate(-50%, -50%) rotate(3deg);
+      background: var(--white); border: var(--line); border-radius: 34px; padding: 22px 16px;
+      box-shadow: 10px 10px 0 var(--ink); display: grid; gap: 12px;
+    }
+    .phone-bar { border: 2.5px solid var(--ink); border-radius: 999px; padding: 9px 14px; font-weight: 600; font-size: 0.88rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .phone-result { display: flex; gap: 10px; align-items: center; padding: 10px; border: 2.5px solid var(--ink); border-radius: 16px; background: var(--lime); }
+    .phone-result img { border-radius: 12px; border: 2px solid var(--ink); }
+    .phone-result div { display: flex; flex-direction: column; line-height: 1.25; }
+    .phone-result small { font-size: 0.78rem; }
+    .phone-ghost { height: 56px; border-radius: 16px; background: #ecebe6; }
+
+    .sticker {
+      position: absolute; z-index: 2; cursor: grab; user-select: none; -webkit-user-select: none;
+      font: 800 1rem var(--body); white-space: nowrap;
+      padding: 10px 16px; border: var(--line); border-radius: 999px; box-shadow: var(--pop-sm);
+      transform: rotate(var(--r, 0deg)); transition: box-shadow 0.15s, transform 0.2s var(--ease);
+      touch-action: none;
+    }
+    .sticker:hover { transform: rotate(var(--r, 0deg)) scale(1.06); }
+    .sticker.dragging { cursor: grabbing; box-shadow: 10px 10px 0 var(--ink); transform: rotate(0deg) scale(1.12); z-index: 5; }
+    .s1 { left: 6%; top: 8%; --r: -8deg; background: var(--pink); }
+    .s2 { right: 2%; top: 14%; --r: 6deg; background: var(--lime); }
+    .s3 { left: 0; bottom: 22%; --r: 5deg; background: var(--ink); color: var(--paper); }
+    .s4 { right: 4%; bottom: 12%; --r: -5deg; background: var(--lilac); }
+    .s5 { left: 28%; bottom: 0; --r: -3deg; background: var(--white); }
+    .drag-hint { position: absolute; right: 0; top: -6px; font: 600 0.85rem var(--body); color: var(--gray); transform: rotate(3deg); }
+
+    /* Picker */
+    .picker { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: start; }
+    .picker-sub { font-size: 1.2rem; font-weight: 500; margin: 18px 0 28px; }
+    .problems { display: flex; flex-wrap: wrap; gap: 10px; }
+    .problems button {
+      font: 700 0.98rem var(--body); text-align: left; cursor: pointer;
+      padding: 12px 18px; border: var(--line); border-radius: 999px; background: var(--paper);
+      box-shadow: 3px 3px 0 var(--ink); transition: transform 0.15s, box-shadow 0.15s, background 0.2s;
+    }
+    .problems button:hover { transform: translate(-2px, -2px); box-shadow: 5px 5px 0 var(--ink); }
+    .problems button[aria-selected='true'] { background: var(--ink); color: var(--paper); box-shadow: 3px 3px 0 var(--pink); }
+    .fixes { position: relative; }
+    .fix { padding: 32px; transform: rotate(1.5deg); animation: pop-in 0.45s var(--ease); }
+    .fix[hidden] { display: none; }
+    @keyframes pop-in { from { opacity: 0; transform: rotate(-4deg) scale(0.92); } }
+    .fix-ico { width: 64px; height: 64px; border-radius: 18px; border: var(--line); background: var(--lime); display: grid; place-items: center; margin-bottom: 20px; }
+    .fix-ico :global(svg) { width: 30px; height: 30px; }
+    .fix-kicker { font: 800 0.8rem var(--body); text-transform: uppercase; letter-spacing: 0.1em; color: var(--gray); margin-bottom: 6px; }
+    .fix h3 { font-size: 1.8rem; margin-bottom: 8px; }
+    .fix ul { list-style: none; padding: 0; margin: 22px 0 26px; display: flex; flex-wrap: wrap; gap: 8px; }
+    .fix li { font-weight: 700; font-size: 0.88rem; padding: 6px 12px; border: 2px solid var(--ink); border-radius: 999px; background: var(--paper); }
+
+    /* Before / after */
+    .ba-grid { display: grid; grid-template-columns: 0.9fr 1.1fr; gap: 56px; align-items: center; }
+    .ba-sub { font-size: 1.2rem; margin-top: 20px; }
+    .ba { position: relative; height: 420px; border: var(--line); border-radius: 26px; box-shadow: 10px 10px 0 var(--ink); overflow: hidden; --pos: 50%; }
+    .listing { position: absolute; inset: 0; padding: 30px 30px 26px; }
+    .before { background: #e7e5df; color: #8b8b92; }
+    .after { background: var(--white); clip-path: inset(0 0 0 var(--pos)); }
+    .l-head { display: flex; gap: 14px; align-items: center; padding-bottom: 16px; border-bottom: 2px dashed currentColor; }
+    .after .l-head { border-bottom-color: var(--ink); border-bottom-style: solid; }
+    .l-pin { width: 48px; height: 48px; border-radius: 14px; background: #cfcdc6; }
+    .l-head img { border-radius: 14px; border: 2.5px solid var(--ink); }
+    .l-head div { display: flex; flex-direction: column; }
+    .l-head strong { font-weight: 800; font-size: 1.2rem; }
+    .listing ul { list-style: none; padding: 0; margin: 8px 0 18px; }
+    .listing li { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; font-weight: 700; }
+    .miss { font-style: normal; font-size: 0.82rem; border: 2px dashed currentColor; padding: 2px 10px; border-radius: 999px; }
+    .ok { font-style: normal; width: 30px; height: 30px; display: grid; place-items: center; border-radius: 50%; border: 2.5px solid var(--ink); background: var(--lime); font-weight: 800; }
+    .l-meter { height: 14px; border-radius: 999px; border: 2.5px solid currentColor; overflow: hidden; }
+    .after .l-meter { border-color: var(--ink); }
+    .l-meter i { display: block; height: 100%; background: currentColor; }
+    .after .l-meter i { background: var(--pink); }
+    .ba-handle {
+      position: absolute; top: 0; bottom: 0; left: var(--pos); width: 4px; margin-left: -2px; background: var(--ink); pointer-events: none;
+    }
+    .ba-handle span {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      width: 52px; height: 52px; border-radius: 50%; border: var(--line); background: var(--lime);
+      display: grid; place-items: center; font-weight: 800; font-size: 1.3rem; box-shadow: var(--pop-sm);
+    }
+    #ba-range { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: ew-resize; margin: 0; }
+    #ba-range:focus-visible + .ba-tag { outline: 3px solid var(--pink); }
+    .ba-tag { position: absolute; bottom: 14px; font: 800 0.75rem var(--body); text-transform: uppercase; letter-spacing: 0.08em; padding: 5px 10px; border-radius: 999px; border: 2px solid var(--ink); pointer-events: none; }
+    .t-before { left: 14px; background: #cfcdc6; }
+    .t-after { right: 14px; background: var(--lime); }
+
+    /* Steps */
+    .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+    .step { border-color: var(--paper); box-shadow: 6px 6px 0 var(--pink); }
+    .step.tilt-l.in { transform: rotate(-2deg); } .step.tilt-r.in { transform: rotate(2deg); }
+    .step.in:hover { transform: rotate(0) translate(-3px, -3px); box-shadow: 9px 9px 0 var(--lime); }
+    .step-num { display: block; font: 400 2.6rem/1 var(--display); color: var(--ink); text-shadow: -2px -2px 0 var(--pink), 2px 2px 0 var(--lime); margin-bottom: 26px; }
+    .step h3 { font-size: 1.5rem; margin-bottom: 6px; }
+
+    /* Everything grid */
+    .all-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+    .all-card { position: relative; min-height: 240px; display: flex; flex-direction: column; gap: 8px; color: var(--ink); }
+    .all-card .ico { background: var(--white); margin-bottom: auto; }
+    .all-card h3 { font-size: 1.45rem; margin-top: 28px; }
+    .all-card p { font-weight: 500; }
+    .bg-lime { background: var(--lime); } .bg-lilac { background: var(--lilac); } .bg-pink { background: var(--pink); }
+    .bg-white { background: var(--white); } .bg-white .ico { background: var(--lime); }
+    .go {
+      position: absolute; top: 24px; right: 24px; width: 44px; height: 44px; border-radius: 50%;
+      border: var(--line); background: var(--paper); display: grid; place-items: center; font-weight: 800;
+      transition: transform 0.3s var(--ease), background 0.2s;
+    }
+    .all-card:hover .go { transform: rotate(-45deg); background: var(--ink); color: var(--paper); }
+
+    @media (max-width: 900px) {
+      .hero { padding: 48px 0 64px; }
+      .hero-grid, .picker, .ba-grid { grid-template-columns: 1fr; }
+      .sticker-zone { height: 430px; }
+      .steps { grid-template-columns: 1fr 1fr; }
+      .all-grid { grid-template-columns: 1fr 1fr; }
+      .fix { transform: none; }
+    }
+    @media (max-width: 600px) {
+      .steps, .all-grid { grid-template-columns: 1fr; }
+      .all-card { min-height: 0; }
+      .ba { height: 400px; }
+      .listing { padding: 22px 20px; }
+      .phone { width: 240px; }
+      .s2 { right: 0; } .s4 { right: 0; }
+    }
   </style>
+
+  <script>
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // Hero: misprint offset follows the pointer
+    const title = document.getElementById('hero-title');
+    if (title && !reduce && window.matchMedia('(hover: hover)').matches) {
+      window.addEventListener('pointermove', (e) => {
+        const r = title.getBoundingClientRect();
+        const x = (e.clientX - (r.left + r.width / 2)) / window.innerWidth;
+        const y = (e.clientY - (r.top + r.height / 2)) / window.innerHeight;
+        title.style.setProperty('--mx', `${(0.05 + x * 0.1).toFixed(3)}em`);
+        title.style.setProperty('--my', `${(0.04 + y * 0.1).toFixed(3)}em`);
+      });
+    }
+
+    // Draggable stickers (stay inside their zone)
+    const zone = document.getElementById('sticker-zone');
+    zone?.querySelectorAll<HTMLElement>('.sticker').forEach((el) => {
+      let sx = 0, sy = 0, ox = 0, oy = 0;
+      el.addEventListener('pointerdown', (e) => {
+        el.setPointerCapture(e.pointerId);
+        el.classList.add('dragging');
+        const zr = zone.getBoundingClientRect();
+        const er = el.getBoundingClientRect();
+        // switch to left/top positioning from wherever it is now
+        el.style.left = `${er.left - zr.left}px`;
+        el.style.top = `${er.top - zr.top}px`;
+        el.style.right = 'auto';
+        el.style.bottom = 'auto';
+        sx = e.clientX; sy = e.clientY; ox = er.left - zr.left; oy = er.top - zr.top;
+      });
+      el.addEventListener('pointermove', (e) => {
+        if (!el.classList.contains('dragging')) return;
+        const zr = zone.getBoundingClientRect();
+        const nx = Math.max(-10, Math.min(zr.width - el.offsetWidth + 10, ox + e.clientX - sx));
+        const ny = Math.max(-10, Math.min(zr.height - el.offsetHeight + 10, oy + e.clientY - sy));
+        el.style.left = `${nx}px`;
+        el.style.top = `${ny}px`;
+      });
+      const end = () => {
+        el.classList.remove('dragging');
+        el.style.setProperty('--r', `${(Math.random() * 14 - 7).toFixed(1)}deg`);
+      };
+      el.addEventListener('pointerup', end);
+      el.addEventListener('pointercancel', end);
+    });
+
+    // Problem picker
+    const tabs = Array.from(document.querySelectorAll<HTMLButtonElement>('.problems [role="tab"]'));
+    const select = (btn: HTMLButtonElement) => {
+      tabs.forEach((b) => {
+        const on = b === btn;
+        b.setAttribute('aria-selected', String(on));
+        b.tabIndex = on ? 0 : -1;
+        const panel = document.getElementById(b.getAttribute('aria-controls')!);
+        if (panel) panel.hidden = !on;
+      });
+    };
+    tabs.forEach((btn, i) => {
+      btn.addEventListener('click', () => select(btn));
+      btn.addEventListener('keydown', (e) => {
+        const dir = ['ArrowRight', 'ArrowDown'].includes(e.key) ? 1 : ['ArrowLeft', 'ArrowUp'].includes(e.key) ? -1 : 0;
+        if (!dir) return;
+        e.preventDefault();
+        const next = tabs[(i + dir + tabs.length) % tabs.length];
+        select(next);
+        next.focus();
+      });
+    });
+
+    // Before / after slider
+    const ba = document.getElementById('ba');
+    const range = document.getElementById('ba-range') as HTMLInputElement | null;
+    const setPos = (v: number) => ba?.style.setProperty('--pos', `${v}%`);
+    range?.addEventListener('input', () => setPos(Number(range.value)));
+    // A little nudge the first time it scrolls into view, so people know it moves
+    if (ba && range && !reduce && 'IntersectionObserver' in window) {
+      const io = new IntersectionObserver((entries) => {
+        if (!entries[0].isIntersecting) return;
+        io.disconnect();
+        let t = 0;
+        const wiggle = () => {
+          t += 1;
+          const v = 50 + Math.sin(t / 9) * 22 * Math.max(0, 1 - t / 60);
+          setPos(v); range.value = String(v);
+          if (t < 60) requestAnimationFrame(wiggle);
+        };
+        setTimeout(wiggle, 500);
+      }, { threshold: 0.6 });
+      io.observe(ba);
+    }
+  </script>
 </Base>

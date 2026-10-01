@@ -1,0 +1,64 @@
+---
+import Base from '../layouts/Base.astro';
+import { url } from '../lib/base';
+
+const values = [
+  ['Honest', 'Real numbers every month. No big promises.', 'lime'],
+  ['Simple', 'Plain English, no jargon. You can reach me directly.', 'lilac'],
+  ['Yours', 'Your domain, your site, your name on it.', 'pink'],
+];
+---
+<Base title="About" description="Weaver Digital is Ashley Weaver's company, helping small local businesses get found online.">
+  <section class="page-top">
+    <div class="wrap about-grid">
+      <div>
+        <span class="label reveal">About</span>
+        <h1 class="display misprint reveal" data-delay="1">Hi, I'm<br />Ashley.</h1>
+        <p class="big reveal" data-delay="2">
+          I help the small businesses nobody else calls: handymen, groomers, bakers, cleaners.
+          Great work, hard to find online. I fix that.
+        </p>
+      </div>
+      <div class="badge reveal" data-delay="2" data-tilt="18" aria-hidden="true">
+        <img class="lift" src={url('/brand/icon.png')} alt="" width="300" height="300" />
+      </div>
+    </div>
+  </section>
+
+  <section class="section on-ink">
+    <div class="wrap">
+      <h2 class="display misprint reveal">How I work.</h2>
+      <div class="values">
+        {values.map(([title, line, color], i) => (
+          <div class={`value card hoverable reveal v-${color}`} data-delay={String(i)}>
+            <span class="v-num">0{i + 1}</span>
+            <h3>{title}</h3>
+            <p>{line}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <style>
+    .page-top { padding: 72px 0 96px; }
+    .about-grid { display: grid; grid-template-columns: 1.3fr 1fr; gap: 48px; align-items: center; }
+    .big { font-size: clamp(1.2rem, 2.2vw, 1.5rem); font-weight: 500; line-height: 1.45; margin-top: 28px; max-width: 560px; }
+    .badge { justify-self: center; width: min(300px, 70vw); }
+    .badge img { border-radius: 22%; border: var(--line); box-shadow: 12px 12px 0 var(--ink); }
+
+    .values { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; margin-top: 48px; }
+    .value { color: var(--ink); border-color: var(--paper); box-shadow: 6px 6px 0 var(--pink); padding: 30px; }
+    .value:nth-child(1).in { transform: rotate(-2deg); } .value:nth-child(2).in { transform: rotate(1.5deg); } .value:nth-child(3).in { transform: rotate(-1deg); }
+    .value.in:hover { transform: rotate(0) translate(-3px, -3px); }
+    .v-lime { background: var(--lime); } .v-lilac { background: var(--lilac); } .v-pink { background: var(--pink); box-shadow: 6px 6px 0 var(--lime); }
+    .v-num { display: block; font: 400 1.4rem var(--display); margin-bottom: 30px; }
+    .value h3 { font-size: 1.8rem; margin-bottom: 8px; }
+    .value p { font-weight: 500; }
+
+    @media (max-width: 900px) {
+      .page-top { padding: 48px 0 64px; }
+      .about-grid, .values { grid-template-columns: 1fr; }
+    }
+  </style>
+</Base>

@@ -57,29 +57,44 @@ function labelFor(field: string): string {
     )
   ))}
   <div class="cf-turnstile" data-sitekey={turnstileSiteKey}></div>
-  <button type="submit">Request my free quote</button>
+  <button type="submit">Send message</button>
   <p id="scribe-contact-status" role="status"></p>
 </form>
 
 <style>
-  #scribe-contact-form { display: flex; flex-direction: column; gap: 14px; max-width: 480px; margin-top: 24px; }
-  #scribe-contact-form label { display: flex; flex-direction: column; gap: 4px; font-weight: 600; }
+  #scribe-contact-form { display: flex; flex-direction: column; gap: 16px; }
+  #scribe-contact-form label { display: flex; flex-direction: column; gap: 6px; font-weight: 800; font-size: 0.95rem; }
   #scribe-contact-form input, #scribe-contact-form textarea {
     font: inherit;
-    padding: 10px 12px;
-    border: 1px solid var(--border, #dde5df);
-    border-radius: 8px;
+    font-weight: 500;
+    padding: 12px 14px;
+    border: 2.5px solid var(--ink, #141414);
+    border-radius: 12px;
+    background: var(--paper, #f4f1ea);
+    color: var(--ink, #141414);
+    transition: box-shadow 0.15s, background 0.15s;
   }
+  #scribe-contact-form input:focus, #scribe-contact-form textarea:focus {
+    outline: none;
+    background: #fff;
+    box-shadow: 4px 4px 0 var(--lime, #c6f432);
+  }
+  #scribe-contact-form textarea { min-height: 140px; resize: vertical; }
   #scribe-contact-form button {
     align-self: flex-start;
-    background: var(--green-700, #2f7a4f);
-    color: white;
-    border: none;
-    padding: 12px 24px;
+    background: var(--lime, #c6f432);
+    color: var(--ink, #141414);
+    border: 3px solid var(--ink, #141414);
+    padding: 14px 28px;
     border-radius: 999px;
-    font-weight: 700;
+    font: 800 1rem var(--body, inherit);
     cursor: pointer;
+    box-shadow: 4px 4px 0 var(--ink, #141414);
+    transition: transform 0.15s, box-shadow 0.15s;
   }
+  #scribe-contact-form button:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--ink, #141414); }
+  #scribe-contact-form button:active { transform: translate(4px, 4px); box-shadow: 0 0 0 var(--ink, #141414); }
+  #scribe-contact-status { margin: 0; font-weight: 700; }
 </style>
 
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
@@ -143,7 +158,7 @@ function labelFor(field: string): string {
       try {
         await send(pending);
         clearPending();
-        setStatus('Submitted!');
+        setStatus("Thanks! I'll be in touch within a day or two.");
       } catch {
         // Still offline/unreachable — leave it pending and try again on
         // the next page load rather than looping here.
@@ -157,7 +172,7 @@ function labelFor(field: string): string {
 
       try {
         await send(payload);
-        setStatus('Submitted!');
+        setStatus("Thanks! I'll be in touch within a day or two.");
         form.reset();
       } catch {
         savePending(payload);
