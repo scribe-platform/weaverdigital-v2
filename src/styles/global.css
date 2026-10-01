@@ -55,7 +55,19 @@ h3 { font-family: var(--body); font-weight: 800; font-size: 1.3rem; letter-spaci
     calc(var(--mx) * -1) calc(var(--my) * -1) 0 var(--pink),
     var(--mx) var(--my) 0 var(--lime);
 }
-.on-ink .misprint { color: var(--paper); }
+.on-ink .misprint, .on-ink .outlined {
+  color: var(--paper);
+  /* A thin ink ring (the first 8 shadows, drawn on top) keeps paper letters readable
+     against the pink/lime offsets, matching the dark logo. */
+  --o: 0.028em;
+  text-shadow:
+    var(--o) 0 0 var(--ink), calc(var(--o) * -1) 0 0 var(--ink),
+    0 var(--o) 0 var(--ink), 0 calc(var(--o) * -1) 0 var(--ink),
+    var(--o) var(--o) 0 var(--ink), calc(var(--o) * -1) var(--o) 0 var(--ink),
+    var(--o) calc(var(--o) * -1) 0 var(--ink), calc(var(--o) * -1) calc(var(--o) * -1) 0 var(--ink),
+    -0.07em -0.055em 0 var(--pink),
+    0.07em 0.055em 0 var(--lime);
+}
 .on-lime .misprint { text-shadow: calc(var(--mx) * -1) calc(var(--my) * -1) 0 var(--pink), var(--mx) var(--my) 0 var(--paper); }
 
 .wrap { max-width: 1180px; margin: 0 auto; padding: 0 20px; }
